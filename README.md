@@ -17,7 +17,7 @@ excel: ^1.1.5
 ## Adding Appointments data to excel sheet
 
 Then add the appointment data to the excel sheet and attach the excel file under the asset folder.
-![Adding appointment](https://user-images.githubusercontent.com/61832185/202086362-e424eee5-eaa0-4cd6-b5b4-d8361378833b.png)
+![Adding appointment](https://user-images.githubusercontent.com/46158936/202694570-4c8113ba-ea87-49b2-b98f-08c540c3e20c.png)
 
 ## Getting calenadar events from the excel sheet
 
