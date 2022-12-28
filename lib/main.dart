@@ -1,6 +1,5 @@
 import 'dart:core';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +12,8 @@ void main() {
 }
 
 class ExcelData extends StatelessWidget {
+  const ExcelData({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -28,7 +29,7 @@ class LoadDataFromExcel extends StatefulWidget {
 }
 
 class LoadDataFromExcelState extends State<LoadDataFromExcel> {
-  List<Color> _colorCollection;
+  late List<Color> _colorCollection;
 
   @override
   void initState() {
@@ -38,7 +39,7 @@ class LoadDataFromExcelState extends State<LoadDataFromExcel> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       body: Container(
         child: FutureBuilder(
           future: getDataFromExcel(),
@@ -47,11 +48,11 @@ class LoadDataFromExcelState extends State<LoadDataFromExcel> {
               return SafeArea(
                 child: Container(
                     child: SfCalendar(
-                  view: CalendarView.month,
-                  initialDisplayDate: DateTime(2020, 05, 01, 09, 0, 0),
-                  dataSource: MeetingDataSource(snapshot.data),
-                  monthViewSettings: MonthViewSettings(showAgenda: true),
-                )),
+                      view: CalendarView.month,
+                      initialDisplayDate: DateTime(2020, 05, 01, 09, 0, 0),
+                      dataSource: MeetingDataSource(snapshot.data),
+                      monthViewSettings: MonthViewSettings(showAgenda: true),
+                    )),
               );
             } else {
               return Container(
@@ -69,27 +70,27 @@ class LoadDataFromExcelState extends State<LoadDataFromExcel> {
   Future<List<Meeting>> getDataFromExcel() async {
     ByteData data = await rootBundle.load("assets/Schedule.xlsx");
     Uint8List bytes =
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     Excel excel = Excel.decodeBytes(bytes);
     int j = 0;
 
     final List<Meeting> appointmentData = [];
     for (String table in excel.tables.keys) {
-      Map<int, List<dynamic>> mp = Map<int, List<dynamic>>();
-      for (List<dynamic> row in excel.tables[table].rows) mp[j++] = row;
+      Map<int, List<dynamic>> mp = <int, List<dynamic>>{};
+      for (List<dynamic> row in excel.tables[table]!.rows) mp[j++] = row;
 
-      int subjectIndex, startTimeIndex, endTimeIndex;
+      late int subjectIndex , startTimeIndex, endTimeIndex ;
       if (mp != null) {
         for (int i = 0; i < mp.length; i++) {
           if (i == 0) {
-            subjectIndex = mp[i].indexWhere((element) => element == 'Subject');
+            subjectIndex = mp[i]!.indexWhere((element) => element.value == 'Subject');
             startTimeIndex =
-                mp[i].indexWhere((element) => element == 'StartTime');
-            endTimeIndex = mp[i].indexWhere((element) => element == 'EndTime');
+                mp[i]!.indexWhere((element) => element.value == 'StartTime');
+            endTimeIndex = mp[i]!.indexWhere((element) => element.value == 'EndTime');
           } else {
-            final Random random = new Random();
+            final Random random = Random();
             Meeting meeting = Meeting.map(
-                mp[i],
+                mp[i]!,
                 _colorCollection[random.nextInt(9)],
                 subjectIndex,
                 startTimeIndex,
@@ -124,46 +125,46 @@ class MeetingDataSource extends CalendarDataSource {
 
   @override
   DateTime getStartTime(int index) {
-    return appointments[index].from;
+    return appointments![index].from;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return appointments[index].to;
+    return appointments![index].to;
   }
 
   @override
   String getSubject(int index) {
-    return appointments[index].eventName;
+    return appointments![index].eventName;
   }
 
   @override
   Color getColor(int index) {
-    return appointments[index].background;
+    return appointments![index].background;
   }
 }
 
 class Meeting {
   Meeting(
       {this.eventName = '',
-      this.from,
-      this.to,
-      this.background,
-      this.isAllDay = false});
+        this.from,
+        this.to,
+        this.background,
+        this.isAllDay = false});
 
   String eventName;
-  DateTime from;
-  DateTime to;
-  Color background;
+  DateTime? from;
+  DateTime? to;
+  Color? background;
   bool isAllDay;
-  Object id;
+  Object? id;
 
   static Meeting map(List<dynamic> data, Color color, int subjectIndex,
       int startTimeIndex, int endTimeIndex) {
     return Meeting(
-        eventName: data[subjectIndex],
-        from: DateFormat('dd/MM/yyyy HH:mm a').parse(data[startTimeIndex]),
-        to: DateFormat('dd/MM/yyyy HH:mm a').parse(data[endTimeIndex]),
+        eventName: data![subjectIndex].value,
+        from: DateFormat('dd/MM/yyyy HH:mm a').parse(data![startTimeIndex].value),
+        to: DateFormat('dd/MM/yyyy HH:mm a').parse(data![endTimeIndex].value),
         background: color);
   }
 }
